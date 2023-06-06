@@ -1,11 +1,12 @@
-import java.util.ArrayList;
+import java.sql.*;
+import java.util.Scanner;
+
 public class Delivery extends Account{
-    ArrayList Orders ;
-    ArrayList Addresses ;
-    String Position ;
-    Delivery(String name , String pass){
-        Password = pass ;
-        Name = name ;
+    Delivery(Scanner sc , Connection con , PreparedStatement prep , ResultSet rs) {
+        scanner = sc;
+        connection = con ;
+        preparedStatement = prep;
+        resultSet = rs ;
     }
     void startDelivery(){}
     void ConnectToAdmin(){}

@@ -1,16 +1,14 @@
-import java.util.ArrayList;
+import java.sql.*;
+import java.util.Scanner;
 
 public class Costumer extends Account{
-    ArrayList OrderHistory ;
-    boolean isOrdering ; /*(its true when customer is ordering )*/
-    ArrayList Orders ;
-    ArrayList Discounts ;
-    int Points ;
-    Costumer(String name , String pass){
-        Password = pass ;
-        Name = name ;
+    Costumer(Scanner sc , Connection con , PreparedStatement prep , ResultSet rs) {
+        scanner = sc;
+        connection = con ;
+        preparedStatement = prep;
+        resultSet = rs ;
     }
-    void startCostumer(){} ;
+    void startCostumer(){}
     void SetAddress(){}
     void SetOrder(){}
     void UseDiscount(){}
