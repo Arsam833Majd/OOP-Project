@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Admin extends Account {
@@ -29,7 +30,10 @@ public class Admin extends Account {
                                     break;
                                 }
                                 case "foodtype" :{
-                                    System.out.println("restaurant food type is "+show_FType(restId));
+                                    System.out.println("restaurant food types are :");
+                                    ArrayList <String> types = show_FType(restId) ;
+                                    for (String i : types)
+                                        System.out.println(i);
                                     break;
                                 }
                                 case "order" :{
@@ -56,7 +60,7 @@ public class Admin extends Account {
                                         if(scanner.nextLine().equals("yes")) {
                                             String types = "";
                                             for (int i = 2; i < command.length; i++)
-                                                types = types + command[i];
+                                                types = types + command[i]+" ";
                                             edit_FType(restId, types.split(" "));
                                             System.out.println("food types edited successfully !");
                                         }
@@ -117,15 +121,18 @@ public class Admin extends Account {
                         }
                         case "add" :{
                             String name = "";
-                            for (int i = 2; i < command.length; i++)
-                                name = name + command[i] ;
-                            add_food(restId , name , Integer.parseInt(command[3]));
+                            for (int i = 2; i < command.length-1; i++) {
+                                name = name + command[i];
+                                if(i != command.length-2)
+                                    name = name + " ";
+                            }
+                            add_food(restId , name , Integer.parseInt(command[command.length-1]));
                             System.out.println("food added successfully !");
                             break;
                         }
                         case "delete" :{
                             foodId = Integer.parseInt(command[2]) ;
-                            if(check_ordering(foodId)){
+                            if(!check_ordering(foodId)){
                                 System.out.println("ARE YOU SURE YOU WANT TO DELETE THIS FOOD?");
                                 if(scanner.nextLine().equals("yes")){
                                     delete_food(foodId);
@@ -142,7 +149,7 @@ public class Admin extends Account {
                         }
                         case "deactive" :{
                             foodId = Integer.parseInt(command[2]) ;
-                            if(check_ordering(foodId)){
+                            if(!check_ordering(foodId)){
                                 DeActive_food(foodId);
                                 System.out.println("food deleted successfully !");
                             }else
@@ -151,7 +158,7 @@ public class Admin extends Account {
                         }
                         case "discount" :{
                             foodId = Integer.parseInt(command[2]) ;
-                            if(checkDis(foodId)){
+                            if(!checkDis(foodId)){
                                 int disPer = Integer.parseInt(command[3]) ;
                                 if(disPer <= 50){
                                     discount(foodId , disPer , Integer.parseInt(command[4]));
@@ -164,11 +171,12 @@ public class Admin extends Account {
                         }
                         case "select" :{
                             if(command[1].equals("menu")){
-                                System.out.println("the menu :");
+                                System.out.println("you can view id , name , price , discount , discount time , active? , order?");
                                 select_Menu(restId);
                             }else if(command[1].equals("food")){
                                 foodId = Integer.parseInt(command[2]) ;
                                 page = "food" ;
+                                System.out.println("food is selected , you can view ratings and comments");
                                 break;
                             }
                             break;
@@ -190,12 +198,12 @@ public class Admin extends Account {
                     break;
                 }
                 case "food": {
-                    switch(command[1]){
+                    switch(command[0]){
                         case "display" :{
-                            if(command[2].equals("ratings")){
+                            if(command[1].equals("ratings")){
                                 System.out.println("ratings are :");
                                 display_rating(foodId);
-                            }else if(command[2].equals("comments")){
+                            }else if(command[1].equals("comments")){
                                 System.out.println("comments are :");
                                 display_comment(foodId);
                             }
@@ -212,19 +220,23 @@ public class Admin extends Account {
                             break;
                         }
                         case "edit" :{
-                            commentId = Integer.parseInt(command[3]) ;
-                            System.out.println("this was your message :");
-                            display_response(commentId);
-                            System.out.println("type your new message (when you are finished type \"end\")");
-                            String message = scanner.nextLine();
-                            while(!scanner.nextLine().equals("end"))
-                                message = message+scanner.nextLine() ;
-                            edit_response(commentId , message);
-                            System.out.println("response edited successfully !");
+                            commentId = Integer.parseInt(command[2]) ;
+                            if(check_response(commentId)) {
+                                System.out.println("this was your message :");
+                                display_response(commentId);
+                                System.out.println("type your new message (when you are finished type \"end\")");
+                                String message = scanner.nextLine();
+                                while (!scanner.nextLine().equals("end"))
+                                    message = message + scanner.nextLine();
+                                edit_response(commentId, message);
+                                System.out.println("response edited successfully !");
+                            }else
+                                System.out.println("there is no response for this comment , add a response first");
                             break;
                         }
                         case "return" :{
                             page = "restaurant" ;
+                            System.out.println("this is restaurant page");
                             break;
                         }
                         default:{
@@ -238,7 +250,8 @@ public class Admin extends Account {
                     break;
                 }
             }
-            x = scanner.nextLine() ;
+            if(loggedIn)
+                x = scanner.nextLine() ;
         }
     }
 
@@ -268,16 +281,16 @@ public class Admin extends Account {
         }
     }
 
-    String show_FType(int restId) {
-        String fType ;
+    ArrayList<String> show_FType(int restId) {
+        ArrayList<String> fType = new ArrayList<>() ;
         try{
             preparedStatement = connection.prepareStatement("select typeName from restauranttype_tbl where restaurantId = ? ;");
             preparedStatement.setInt(1 , restId);
             resultSet = preparedStatement.executeQuery() ;
-            resultSet.next() ;
-            fType = resultSet.getString(1) ;
+            while(resultSet.next())
+                fType.add( resultSet.getString(1));
         }catch (Exception e){
-            fType = "none" ;
+            fType.add("none") ;
             System.out.println(e);
         }
         return fType ;
@@ -322,12 +335,12 @@ public class Admin extends Account {
 
     void select_Menu(int restId){
         try{
-            preparedStatement = connection.prepareStatement("select * from food_tbl where restaurantId = ?;") ;
+            preparedStatement = connection.prepareStatement("select id , foodName , price , discount , discountTime , isActive , isOrder from food_tbl where restaurantId = ?;") ;
             preparedStatement.setInt(1, restId);
             resultSet = preparedStatement.executeQuery() ;
             while(resultSet.next()){
                 System.out.println(resultSet.getInt(1)+" "+resultSet.getString(2)+" "+resultSet.getInt(3)+" "+
-                        resultSet.getInt(4)+" "+resultSet.getInt(5)+" "+resultSet.getString(6));
+                        resultSet.getInt(4)+" "+resultSet.getInt(5)+" "+resultSet.getString(6)+" "+ resultSet.getString(7));
             }
         }catch (Exception e){
             System.out.println(e);
@@ -434,7 +447,7 @@ public class Admin extends Account {
     boolean checkDis(int foodId){
         boolean haveDis = false ;
         try{
-            preparedStatement = connection.prepareStatement("select discount from foot_tbl where id = ?;");
+            preparedStatement = connection.prepareStatement("select discount from food_tbl where id = ?;");
             preparedStatement.setInt(1 , foodId);
             resultSet = preparedStatement.executeQuery() ;
             resultSet.next() ;
@@ -468,6 +481,7 @@ public class Admin extends Account {
                 preparedStatement = connection.prepareStatement("select username from auth_tbl where id = ?;");
                 preparedStatement.setInt(1 , resultSet.getInt(2));
                 second = preparedStatement.executeQuery() ;
+                second.next() ;
                 System.out.println(second.getString(1)+" rating : "+resultSet.getInt(1));
             }
         }catch (Exception e){
@@ -485,11 +499,27 @@ public class Admin extends Account {
                 preparedStatement = connection.prepareStatement("select username from auth_tbl where id = ?;");
                 preparedStatement.setInt(1 , resultSet.getInt(2));
                 second = preparedStatement.executeQuery() ;
-                System.out.println(second.getString(1)+" said : "+resultSet.getString(3)+"comment id : "+resultSet.getInt(2));
+                second.next();
+                System.out.println(second.getString(1)+" said : \""+resultSet.getString(3)+"\" comment id : "+resultSet.getInt(1));
             }
         }catch (Exception e){
             System.out.println(e);
         }
+    }
+
+    boolean check_response(int commentId){
+        boolean checked = false ;
+        try{
+            preparedStatement = connection.prepareStatement("select id from response_tbl where commentId = ?;");
+            preparedStatement.setInt(1 , commentId);
+            resultSet = preparedStatement.executeQuery() ;
+            resultSet.next();
+            if(resultSet.getInt(1)>0)
+                checked = true ;
+        }catch (Exception e){
+            checked = false ;
+        }
+        return checked ;
     }
 
     void display_response(int commentId){
@@ -531,7 +561,7 @@ public class Admin extends Account {
             if(open)
                 preparedStatement = connection.prepareStatement("select username , foodId from order_tbl where restaurantId = ? and statusId = 1 ;");
             else
-                preparedStatement = connection.prepareStatement("select username , foodId from order_tbl where restaurantId = ? and statausId <> 1;");
+                preparedStatement = connection.prepareStatement("select username , foodId from order_tbl where restaurantId = ? and statusId <> 1;");
             preparedStatement.setInt(1 , restId);
             resultSet = preparedStatement.executeQuery() ;
             ResultSet second ;
@@ -543,6 +573,7 @@ public class Admin extends Account {
                     preparedStatement = connection.prepareStatement("select foodName from food_tbl where id = ?;");
                     preparedStatement.setInt(1 ,Integer.parseInt(i));
                     second = preparedStatement.executeQuery() ;
+                    second.next();
                     System.out.println(second.getString(1));
                 }
             }

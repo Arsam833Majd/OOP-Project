@@ -55,7 +55,7 @@ public class UsersData {
             } else if (answer.equals("register")) {
                 boolean registered = false;
                 while (!registered) {
-                    System.out.println("choose a name and password , your password must contain alphanumeric characters");
+                    System.out.println("choose a name and password , your password must contain at least 8 alphanumeric characters");
                     System.out.println("name :");
                     String name = scanner.nextLine();
                     System.out.println("password :");
@@ -86,7 +86,7 @@ public class UsersData {
                             registered = true ;
                         }
                     } else {
-                        System.out.println("your password has an incorrect pattern , try again");
+                        System.out.println("your password has incorrect pattern , try again");
                     }
                 }
             }
