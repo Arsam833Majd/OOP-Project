@@ -15,5 +15,7 @@ public class Main {
         }
         UsersData us = new UsersData(connection , preparedStatement , resultSet , sc) ;
         us.loginOrRegister();
+        Map map = new Map("D:\\SUT\\graph.txt");
+        //System.out.println(map.shortestPath(1,500,1));
     }
 }
