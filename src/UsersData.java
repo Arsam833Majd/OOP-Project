@@ -32,7 +32,7 @@ public class UsersData {
                 else
                     System.out.println("choose the correct role !");
             }
-            System.out.println("Login or Register :");
+            System.out.println("login or register :");
             String answer = scanner.nextLine();
             if (answer.equals("login")) {
                 boolean loggedIn = false;
@@ -74,7 +74,7 @@ public class UsersData {
                                     break;
                                 }
                                 case "Costumer" : {
-                                    AddCostumer();
+                                    AddCostumer(name , pass);
                                     break;
                                 }
                                 case "Delivery" :{
@@ -177,13 +177,24 @@ public class UsersData {
             System.out.println("Registered successfully !");
             admin.loggedIn = true ;
             admin.startAdmin(get_restId(resultSet.getInt(1)));
-            loginOrRegister();
         }catch (Exception e){
             System.out.println(e);
         }
+        loginOrRegister();
     }
-    void AddCostumer(){
-        //loginOrRegister();
+    void AddCostumer(String name , String pass){
+        try{
+            preparedStatement = connection.prepareStatement("insert into auth_tbl (username , password , role , money) values (?,?,0,0);") ;
+            preparedStatement.setString(1,name);
+            preparedStatement.setString(2,pass);
+            preparedStatement.executeUpdate() ;
+            System.out.println("Registered successfully !");
+            costumer.loggedIn = true;
+            costumer.startCostumer();
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        loginOrRegister();
     }
     void AddDelivery(){
         //loginOrRegister();
