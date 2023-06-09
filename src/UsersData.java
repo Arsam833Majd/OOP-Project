@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class UsersData {
     Admin admin ;
@@ -45,6 +46,7 @@ public class UsersData {
                     if(userID != -1) {
                         if(checkPass(pass,userID)){
                             loggedIn = true ;
+                            entered = true ;
                             System.out.println("welcome !");
                             Login(role , userID);
                         }else
@@ -60,7 +62,7 @@ public class UsersData {
                     String name = scanner.nextLine();
                     System.out.println("password :");
                     String pass = scanner.nextLine();
-                    if (Account.checkPattern(pass)) {
+                    if (checkPattern(pass)) {
                         if (searchUser(name) != -1)
                             System.out.println("your name is taken , please choose a different name");
                         else {
@@ -104,6 +106,11 @@ public class UsersData {
             id = -1 ;
         }
         return id ;
+    }
+    boolean checkPattern(String pass){
+        if(Pattern.matches("\\w{8,20}" , pass))
+            return true ;
+        return false ;
     }
     boolean checkPass(String pass , int id){
         boolean checked = false ;

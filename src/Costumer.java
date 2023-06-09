@@ -8,13 +8,11 @@ public class Costumer extends Account{
         preparedStatement = prep;
         resultSet = rs ;
     }
-    void startCostumer(){}
-    void SetAddress(){}
-    void SetOrder(){}
-    void UseDiscount(){}
-    void SendFeedback(){} //for comments
-    void ConnectToDelivery(){}
-    void ChangeBankInfo(){} //linked to BankAccountInfo class
-    void Pay(){}
-    void DeActiveOrder(){}
+
+    //we have to set some arguments for startCostumer method
+
+    void startCostumer(){
+        System.out.println("this is costumers plan which is empty for now ");
+    }
+    //we have to add methods here
 }
